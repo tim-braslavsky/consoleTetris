@@ -141,19 +141,19 @@ int main()
     titleSreen.append(L"#     ======================     #");
     titleSreen.append(L"#                                #");
     titleSreen.append(L"#      PRESS SPACE TO START      #");
-    titleSreen.append(L"#                                #");
-    titleSreen.append(L"#        []   [][]   []  []      #");
-    titleSreen.append(L"#        []   [][]   []  []      #");
-    titleSreen.append(L"#        [][]      [][]  []      #");
-    titleSreen.append(L"#                        []      #");
-    titleSreen.append(L"#         []   []     []         #");
-    titleSreen.append(L"#         [][] [][] [][]         #");
-    titleSreen.append(L"#           [] []   []           #");
-    titleSreen.append(L"#                                #");
-    titleSreen.append(L"#                                #");
-    titleSreen.append(L"#                                #");
-    titleSreen.append(L"#                                #");
-    titleSreen.append(L"#                                #");
+    titleSreen.append(L"#              +                 #");
+    titleSreen.append(L"#              o+                #");
+    titleSreen.append(L"#              l|         +      #");
+    titleSreen.append(L"#     +       / ^\\        |      #");
+    titleSreen.append(L"#     |   +  / //\\\\  +    ^      #");
+    titleSreen.append(L"#     ^   | / (///)\\ |   //\\     #");
+    titleSreen.append(L"#    //\\  ^ |  |U| | ^  (///)    #");
+    titleSreen.append(L"#   (///)//\\|  /U\\ |//\\  |U|     #");
+    titleSreen.append(L"#    |U|(///) |UUU|(///)|UUU|    #");
+    titleSreen.append(L"#   |UUU||U|| | ' |||U| |===|    #");
+    titleSreen.append(L"#   |===|UUU| |===||UUU||   |    #");
+    titleSreen.append(L"#   |   | ' | |   || ' ||   |    #");
+    titleSreen.append(L"#   |MMM|OOO| |MMM||OOO||MMM|    #");
     titleSreen.append(L"==================================");
 
     difficultySreen.append(L"==================================");
@@ -211,30 +211,30 @@ int main()
     gameOverSreen.append(L"==================================");
 
     pausedSreen.append(L"==================================");
-    pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
     pausedSreen.append(L"#      ____                      #");
     pausedSreen.append(L"#     /   /                      #");
     pausedSreen.append(L"#    /___/ ___       __  __  _   #");
     pausedSreen.append(L"#   /     /__/ /  / /_  /_  / \\  #");
     pausedSreen.append(L"#  /     /  / /__/ __/ /_  /__/  #");
     pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
     pausedSreen.append(L"#     PRESS ESC TO RESUME        #");
     pausedSreen.append(L"#     PRESS R TO RESTART         #");
     pausedSreen.append(L"#     PRESS M FOR MAIN MENU      #");
     pausedSreen.append(L"#     PRESS Q TO QUIT            #");
     pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#             /\\                 #");
-    pausedSreen.append(L"#            ///\\                #");
-    pausedSreen.append(L"#           /////\\               #");
-    pausedSreen.append(L"#     /\\   ///////\\   /\\         #");
-    pausedSreen.append(L"#    ///\\  \\///////  ///\\        #");
-    pausedSreen.append(L"#    \\///   || \u25a1 ||  \\///        #");
-    pausedSreen.append(L"#     |\u25a1|   ||   ||   |\u25a1|        #");
-    pausedSreen.append(L"#    \u2593| |\u2593 ||| \u25a1 ||| \u2593| |\u2593       #");
-    pausedSreen.append(L"#    \u2593|\u25a1|\u2593 |||   ||| \u2593|\u25a1|\u2593       #");
-    pausedSreen.append(L"#    \u2593| |\u2593 ||| \u25a1 ||| \u2593| |\u2593       #");
+    pausedSreen.append(L"#              +                 #");
+    pausedSreen.append(L"#              o+                #");
+    pausedSreen.append(L"#              l|         +      #");
+    pausedSreen.append(L"#     +       / ^\\        |      #");
+    pausedSreen.append(L"#     |   +  / //\\\\  +    ^      #");
+    pausedSreen.append(L"#     ^   | / (///)\\ |   //\\     #");
+    pausedSreen.append(L"#    //\\  ^ |  |U| | ^  (///)    #");
+    pausedSreen.append(L"#   (///)//\\|  /U\\ |//\\  |U|     #");
+    pausedSreen.append(L"#    |U|(///) |UUU|(///)|UUU|    #");
+    pausedSreen.append(L"#   |UUU||U|| | ' |||U| |===|    #");
+    pausedSreen.append(L"#   |===|UUU| |===||UUU||   |    #");
+    pausedSreen.append(L"#   |   | ' | |   || ' ||   |    #");
+    pausedSreen.append(L"#   |MMM|OOO| |MMM||OOO||MMM|    #");
     pausedSreen.append(L"==================================");
 
     pField = new unsigned char[nFieldWidth * nFieldHeight];
@@ -357,7 +357,7 @@ int main()
                 for (int y = 0; y < nSH; y++)
                     screen[y * nSW + x] = difficultySreen[y * nSW + x];
 
-            swprintf_s(&screen[14 * nSW + 19], 4, L"%d", nDiffuculty);
+            swprintf_s(&screen[16 * nSW + 19], 3, L"%02d", nDiffuculty);
 
             if (bKey[KEY_SPACE] && !bStartHold)
             {
@@ -403,7 +403,7 @@ int main()
         while (!bGameOver && (gState == GS_PLAYING || gState == GS_PAUSE))
         {
             // GAME TIMING =====================================================
-            this_thread::sleep_for(50ms);
+            this_thread::sleep_for(16.66ms);
 
             // INPUT ===========================================================
             for (int k = 0; k < sizeof(bKey); k++)
@@ -491,6 +491,12 @@ int main()
                 else if (!bKey[KEY_ESC])
                     bPauseHold = false;
                 bPlaying = !bGameOver;
+
+                if (bKey[KEY_Q])
+                {
+                    bGameOver = true;
+                    bPlaying = false;
+                }
 
                 if (bForceDown)
                 {
