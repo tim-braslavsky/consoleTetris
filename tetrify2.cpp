@@ -15,7 +15,7 @@ using namespace System;
 #define NUM_TETROMINO_COLS 4
 #define STARTING_OFFSET 2
 #define NUM_SCREEN_COLS 34
-#define NUM_SCREEN_ROWS 22
+#define NUM_SCREEN_ROWS 26
 #endif // !1
 
 enum Rotations
@@ -54,7 +54,7 @@ int Rotate(int px, int py, int r)
 
 wstring tetromino[NUM_TETROMINOES];
 int nFieldWidth = 12;
-int nFieldHeight = 18;
+int nFieldHeight = 22;
 int nSH = NUM_SCREEN_ROWS;
 int nSW = NUM_SCREEN_COLS;
 unsigned char* pField = nullptr;
@@ -150,62 +150,74 @@ int main()
     titleSreen.append(L"#         [][] [][] [][]         #");
     titleSreen.append(L"#           [] []   []           #");
     titleSreen.append(L"#                                #");
+    titleSreen.append(L"#                                #");
+    titleSreen.append(L"#                                #");
+    titleSreen.append(L"#                                #");
+    titleSreen.append(L"#                                #");
     titleSreen.append(L"==================================");
 
     difficultySreen.append(L"==================================");
     difficultySreen.append(L"#                                #");
-    difficultySreen.append(L"#            CONSOLE             #");
+    difficultySreen.append(L"#            CONTROLS            #");
+    difficultySreen.append(L"#  ============================  #");
+    difficultySreen.append(L"#  \u25c4 \u25ba - Move left/right         #");
+    difficultySreen.append(L"#   \u25b2  - Rotate piece            #");
+    difficultySreen.append(L"#   \u25bc  - Move piece down         #");
+    difficultySreen.append(L"#  ESC - Pause                   #");
+    difficultySreen.append(L"#   Q  - Quit(any screen)        #");
     difficultySreen.append(L"#                                #");
-    difficultySreen.append(L"#     ### ## ### ### ### ###     #");
-    difficultySreen.append(L"#      #  #   #  # #  #  #       #");
-    difficultySreen.append(L"#      #  ##  #  ##   #  ###     #");
-    difficultySreen.append(L"#      #  #   #  # #  #    #     #");
-    difficultySreen.append(L"#      #  ##  #  # # ### ###     #");
-    difficultySreen.append(L"#     ======================     #");
+    difficultySreen.append(L"#       CHOOSE DIFFICULTY        #");
+    difficultySreen.append(L"#  ============================  #");
+    difficultySreen.append(L"#  PRESS 0-9: Difficulty level   #");
+    difficultySreen.append(L"#     **HOLD SHIFT FOR +10**     #");
     difficultySreen.append(L"#                                #");
-    difficultySreen.append(L"#      PRESS SPACE TO START      #");
+    difficultySreen.append(L"#  Selected                      #");
+    difficultySreen.append(L"#  Difficulty:                   #");
     difficultySreen.append(L"#                                #");
-    difficultySreen.append(L"#        []   [][]   []  []      #");
-    difficultySreen.append(L"#        []   [][]   []  []      #");
-    difficultySreen.append(L"#        [][]      [][]  []      #");
-    difficultySreen.append(L"#                        []      #");
-    difficultySreen.append(L"#         []   []     []         #");
-    difficultySreen.append(L"#         [][] [][] [][]         #");
-    difficultySreen.append(L"#           [] []   []           #");
+    difficultySreen.append(L"#                                #");
+    difficultySreen.append(L"#  ============================  #");
+    difficultySreen.append(L"#                                #");
+    difficultySreen.append(L"#     PRESS SPACE TO START       #");
+    difficultySreen.append(L"#                                #");
+    difficultySreen.append(L"#                                #");
     difficultySreen.append(L"#                                #");
     difficultySreen.append(L"==================================");
 
     gameOverSreen.append(L"==================================");
     gameOverSreen.append(L"#                                #");
-    gameOverSreen.append(L"#            CONSOLE             #");
+    gameOverSreen.append(L"#     ####   ##   #   #  ###     #");
+    gameOverSreen.append(L"#     #     #  #  ## ##  #       #");
+    gameOverSreen.append(L"#     # ##  ####  # # #  ###     #");
+    gameOverSreen.append(L"#     #  #  #  #  #   #  #       #");
+    gameOverSreen.append(L"#     ####  #  #  #   #  ###     #");
     gameOverSreen.append(L"#                                #");
-    gameOverSreen.append(L"#     ### ## ### ### ### ###     #");
-    gameOverSreen.append(L"#      #  #   #  # #  #  #       #");
-    gameOverSreen.append(L"#      #  ##  #  ##   #  ###     #");
-    gameOverSreen.append(L"#      #  #   #  # #  #    #     #");
-    gameOverSreen.append(L"#      #  ##  #  # # ### ###     #");
-    gameOverSreen.append(L"#     ======================     #");
+    gameOverSreen.append(L"#    ####  #  #  ###  ####  ##   #");
+    gameOverSreen.append(L"#    #  #  #  #  #    #  #  ##   #");
+    gameOverSreen.append(L"#    #  #  #  #  ###  ###   ##   #");
+    gameOverSreen.append(L"#    #  #  #  #  #    #  #       #");
+    gameOverSreen.append(L"#    ####   ##   ###  #  #  ##   #");
     gameOverSreen.append(L"#                                #");
-    gameOverSreen.append(L"#      PRESS SPACE TO START      #");
+    gameOverSreen.append(L"#   ==========================   #");
     gameOverSreen.append(L"#                                #");
-    gameOverSreen.append(L"#        []   [][]   []  []      #");
-    gameOverSreen.append(L"#        []   [][]   []  []      #");
-    gameOverSreen.append(L"#        [][]      [][]  []      #");
-    gameOverSreen.append(L"#                        []      #");
-    gameOverSreen.append(L"#         []   []     []         #");
-    gameOverSreen.append(L"#         [][] [][] [][]         #");
-    gameOverSreen.append(L"#           [] []   []           #");
+    gameOverSreen.append(L"#       PRESS R TO RETRY         #");
+    gameOverSreen.append(L"#       PRESS M FOR MAIN MENU    #");
+    gameOverSreen.append(L"#       PRESS Q TO QUIT          #");
+    gameOverSreen.append(L"#                                #");
+    gameOverSreen.append(L"#                                #");
+    gameOverSreen.append(L"#                                #");
+    gameOverSreen.append(L"#                                #");
+    gameOverSreen.append(L"#                                #");
     gameOverSreen.append(L"#                                #");
     gameOverSreen.append(L"==================================");
 
     pausedSreen.append(L"==================================");
     pausedSreen.append(L"#                                #");
     pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#       ____                     #");
-    pausedSreen.append(L"#      /   /                     #");
-    pausedSreen.append(L"#     /___/ ___       __  __ _   #");
-    pausedSreen.append(L"#    /     /__/ /  / /_  /_ / \\  #");
-    pausedSreen.append(L"#   /     /  / /__/ __/ /_ /__/  #");
+    pausedSreen.append(L"#      ____                      #");
+    pausedSreen.append(L"#     /   /                      #");
+    pausedSreen.append(L"#    /___/ ___       __  __  _   #");
+    pausedSreen.append(L"#   /     /__/ /  / /_  /_  / \\  #");
+    pausedSreen.append(L"#  /     /  / /__/ __/ /_  /__/  #");
     pausedSreen.append(L"#                                #");
     pausedSreen.append(L"#                                #");
     pausedSreen.append(L"#     PRESS ESC TO RESUME        #");
@@ -213,18 +225,26 @@ int main()
     pausedSreen.append(L"#     PRESS M FOR MAIN MENU      #");
     pausedSreen.append(L"#     PRESS Q TO QUIT            #");
     pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
-    pausedSreen.append(L"#                                #");
+    pausedSreen.append(L"#             /\\                 #");
+    pausedSreen.append(L"#            ///\\                #");
+    pausedSreen.append(L"#           /////\\               #");
+    pausedSreen.append(L"#     /\\   ///////\\   /\\         #");
+    pausedSreen.append(L"#    ///\\  \\///////  ///\\        #");
+    pausedSreen.append(L"#    \\///   || \u25a1 ||  \\///        #");
+    pausedSreen.append(L"#     |\u25a1|   ||   ||   |\u25a1|        #");
+    pausedSreen.append(L"#    \u2593| |\u2593 ||| \u25a1 ||| \u2593| |\u2593       #");
+    pausedSreen.append(L"#    \u2593|\u25a1|\u2593 |||   ||| \u2593|\u25a1|\u2593       #");
+    pausedSreen.append(L"#    \u2593| |\u2593 ||| \u25a1 ||| \u2593| |\u2593       #");
     pausedSreen.append(L"==================================");
 
     pField = new unsigned char[nFieldWidth * nFieldHeight];
-    for (int x = 0; x < nFieldWidth; x++)
-        for (int y = 0; y < nFieldHeight; y++)
-            pField[y * nFieldWidth + x] = (x == 0 || x == nFieldWidth - 1 || y == nFieldHeight - 1) ? 8 : 0;
+    
+    auto setupField = []() {
+        for (int x = 0; x < nFieldWidth; x++)
+            for (int y = 0; y < nFieldHeight; y++)
+                pField[y * nFieldWidth + x] = (x == 0 || x == nFieldWidth - 1 || y == nFieldHeight - 1) ? 8 : 0;
+    };
+
 
     wchar_t* screen = new wchar_t[nSW * nSH];
     Console::SetWindowSize(nSW, nSH);
@@ -232,6 +252,11 @@ int main()
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
 
+    auto clearScreen = [] (wchar_t* screen){
+        for (int x = 0; x < nSW; x++)
+            for (int y = 0; y < nSH; y++)
+                screen[y * nSW + x] = L' ';
+    };
 
     DWORD dwBytesWritten = 0;
 
@@ -240,13 +265,15 @@ int main()
     int  nCurrentPiece = rand() % NUM_TETROMINOES;
     int  nNextPiece = rand() % NUM_TETROMINOES;
     int  nCurrentRotation = 0;
-    int  nCurrentX = nFieldWidth / 2;
+    int  nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
     int  nCurrentY = 0;
-    bool bKey[6];
+    bool bKey[20];
     bool bRotateHold = false;
     bool bPauseHold = false;
+    bool bStartHold = false;
 
     int nSpeed = 20;
+    int nDiffuculty = 0;
     int nSpeedCounter = 0;
     bool bForceDown = false;
     int nLineCount = 0;
@@ -269,6 +296,30 @@ int main()
 
     PlaySound(L"C:/Tetris.mp3", 0, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 
+    enum keys
+    {
+        KEY_R_ARROW = 0,
+        KEY_L_ARROW,
+        KEY_D_ARROW,
+        KEY_U_ARROW,
+        KEY_ESC,
+        KEY_SPACE,
+        KEY_Q,
+        KEY_R,
+        KEY_M,
+        KEY_0,
+        KEY_1,
+        KEY_2,
+        KEY_3,
+        KEY_4,
+        KEY_5,
+        KEY_6,
+        KEY_7,
+        KEY_8,
+        KEY_9,
+        KEY_SHIFT
+    };
+
     while (bPlaying)
     {
         // GAME TIMING =====================================================
@@ -276,7 +327,8 @@ int main()
 
         // INPUT ===========================================================
         for (int k = 0; k < sizeof(bKey); k++)
-            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28\x26\x1b\x20"[k]))) != 0;
+            //                                                     ->  <-   V   ^  esc spc  Q   R   M   0   1   2   3   4   5   6   7   8   9  SHIFT
+            bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28\x26\x1b\x20\x51\x52\x4d\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x10"[k]))) != 0;
         
         if (gState == GS_MAIN_MENU)
         {
@@ -284,16 +336,67 @@ int main()
                 for (int y = 0; y < nSH; y++)
                     screen[y * nSW + x] = titleSreen[y * nSW + x];
 
-            if (bKey[5])
+            if (bKey[KEY_SPACE] && !bStartHold)
             {
-                for (int x = 0; x < nSW; x++)
-                    for (int y = 0; y < nSH; y++)
-                        screen[y * nSW + x] = L' ';
+                clearScreen(screen);
+
+                gState = GS_DIFFICULTY_SELECTION;
+
+                bStartHold = true;
+            }
+            else if (!bKey[KEY_SPACE])
+                bStartHold = false;
+
+            bGameOver = bKey[KEY_Q];
+            bPlaying = !bGameOver;
+        }
+
+        if (gState == GS_DIFFICULTY_SELECTION)
+        {
+            for (int x = 0; x < nSW; x++)
+                for (int y = 0; y < nSH; y++)
+                    screen[y * nSW + x] = difficultySreen[y * nSW + x];
+
+            swprintf_s(&screen[14 * nSW + 19], 4, L"%d", nDiffuculty);
+
+            if (bKey[KEY_SPACE] && !bStartHold)
+            {
+                clearScreen(screen);
+
+                setupField();
 
                 gState = GS_PLAYING;
-            }
 
-            bGameOver = bKey[4];
+                bStartHold = true;
+
+                nScore = 0;
+            }
+            else if(!bKey[KEY_SPACE])
+                bStartHold = false;
+
+            if (bKey[KEY_0])
+                nDiffuculty = 0 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_1])
+                nDiffuculty = 1 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_2])
+                nDiffuculty = 2 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_3])
+                nDiffuculty = 3 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_4])
+                nDiffuculty = 4 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_5])
+                nDiffuculty = 5 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_6])
+                nDiffuculty = 6 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_7])
+                nDiffuculty = 7 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_8])
+                nDiffuculty = 8 + (bKey[KEY_SHIFT] ? 10 : 0);
+            else if (bKey[KEY_9])
+                nDiffuculty = 9 + (bKey[KEY_SHIFT] ? 10 : 0);
+
+
+            bGameOver = bKey[KEY_Q];
             bPlaying = !bGameOver;
         }
         
@@ -304,7 +407,8 @@ int main()
 
             // INPUT ===========================================================
             for (int k = 0; k < sizeof(bKey); k++)
-                bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28\x26\x1b\x20"[k]))) != 0;
+                //                                                     ->  <-   V   ^  esc spc  Q   R   M
+                bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28\x26\x1b\x20\x51\x52\x4d"[k]))) != 0;
 
             if (gState == GS_PAUSE)
             {
@@ -312,28 +416,63 @@ int main()
                     for (int y = 0; y < nSH; y++)
                         screen[y * nSW + x] = pausedSreen[y * nSW + x];
 
-                if (bKey[4] && !bPauseHold)
+                if (bKey[KEY_ESC] && !bPauseHold)
                 {
-                    for (int x = 0; x < nSW; x++)
-                        for (int y = 0; y < nSH; y++)
-                            screen[y * nSW + x] = L' ';
+                    clearScreen(screen);
 
                     gState = GS_PLAYING;
 
                     bPauseHold = true;
                 }
-                else if (!bKey[4])
+                else if (!bKey[KEY_ESC])
                 {
                     bPauseHold = false;
+                }
+
+                if (bKey[KEY_R])
+                {
+                    clearScreen(screen);
+
+                    setupField();
+
+                    gState = GS_PLAYING;
+
+                    bGameOver = false;
+
+                    nScore = 0;
+
+                    // Choose next piece
+                    nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
+                    nCurrentY = 0;
+                    nCurrentRotation = 0;
+                    nCurrentPiece = rand() % NUM_TETROMINOES;
+                    nNextPiece = rand() % NUM_TETROMINOES;
+                }
+
+                if (bKey[KEY_Q])
+                {
+                    bGameOver = true;
+                    bPlaying = false;
+                }
+
+                if (bKey[KEY_M])
+                {
+                    gState = GS_MAIN_MENU;
+
+                    clearScreen(screen);
+
+                    bGameOver = false;
                 }
             }
             else 
             {
-                if (nLineCount % 10)
-                    if (nSpeed >= 10) nSpeed--;
-
+                if (nLineCount >= 10)
+                {
+                    if (nSpeed >= 1) nDiffuculty++;
+                    nLineCount = nLineCount % 10;
+                }
                 nSpeedCounter++;
-                bForceDown = (nSpeedCounter == nSpeed);
+                bForceDown = (nSpeedCounter >= (nSpeed - nDiffuculty));
 
                 // GAME LOGIC ======================================================
                 nCurrentX -= (bKey[1] && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
@@ -344,12 +483,12 @@ int main()
 
                 bRotateHold = bKey[3];
 
-                if (bKey[4] && !bPauseHold)
+                if (bKey[KEY_ESC] && !bPauseHold)
                 {
                     bPauseHold = true;
                     gState = GS_PAUSE;
                 }
-                else if (!bKey[4])
+                else if (!bKey[KEY_ESC])
                     bPauseHold = false;
                 bPlaying = !bGameOver;
 
@@ -384,20 +523,21 @@ int main()
                                     nLineCount++;
                                 }
                             }
-
+                        int nMultiplier = (nDiffuculty / 2) > 0 ? (nDiffuculty / 2) : 1;
                         switch (vLines.size())
                         {
+                            
                         case 4:
-                            nScore += 1000;
+                            nScore += 1000 * nMultiplier;
                             break;
                         case 3:
-                            nScore += 500;
+                            nScore += 500 * nMultiplier;
                             break;
                         case 2:
-                            nScore += 250;
+                            nScore += 250 * nMultiplier;
                             break;
                         case 1:
-                            nScore += 100;
+                            nScore += 100 * nMultiplier;
                             break;
                         default:
                             break;
@@ -405,13 +545,17 @@ int main()
 
 
                         // Choose next piece
-                        nCurrentX = nFieldWidth / 2;
+                        nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
                         nCurrentY = 0;
                         nCurrentRotation = 0;
                         nCurrentPiece = nNextPiece;
                         nNextPiece = rand() % NUM_TETROMINOES;
 
-                        bGameOver = !DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY);
+                        if (!DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY))
+                        {
+                            bGameOver = true;
+                            gState = GS_GAME_OVER;
+                        }
                     }
 
                     nSpeedCounter = 0;
@@ -477,6 +621,47 @@ int main()
             }
 
             WriteConsoleOutputCharacter(hConsole, screen, nSW * nSH, { 0,0 }, &dwBytesWritten);
+        }
+
+        if (gState == GS_GAME_OVER)
+        {
+            for (int x = 0; x < nSW; x++)
+                for (int y = 0; y < nSH; y++)
+                    screen[y * nSW + x] = gameOverSreen[y * nSW + x];
+
+            if (bKey[KEY_R])
+            {
+                clearScreen(screen);
+
+                setupField();
+
+                gState = GS_PLAYING;
+
+                bGameOver = false;
+
+                nScore = 0;
+
+                // Choose next piece
+                nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
+                nCurrentY = 0;
+                nCurrentRotation = 0;
+                nCurrentPiece = rand() % NUM_TETROMINOES;
+                nNextPiece = rand() % NUM_TETROMINOES;
+            }
+
+            if (bKey[KEY_Q])
+            {
+                bPlaying = false;
+            }
+
+            if (bKey[KEY_M])
+            {
+                gState = GS_MAIN_MENU;
+
+                clearScreen(screen);
+                
+                bGameOver = false;
+            }
         }
             
         WriteConsoleOutputCharacter(hConsole, screen, nSW * nSH, { 0,0 }, &dwBytesWritten);
