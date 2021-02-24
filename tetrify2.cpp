@@ -4,6 +4,9 @@
 #include <thread>
 #include <chrono>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
 #pragma comment(lib,"Winmm.lib")
 
 using namespace std;
@@ -271,6 +274,9 @@ int main()
     bool bRotateHold = false;
     bool bPauseHold = false;
     bool bStartHold = false;
+    int  nDAS = 10;
+    int  nDASCounter = 0;
+    bool bDirectionHeld = false;
 
     int nSpeed = 20;
     int nDiffuculty = 0;
@@ -280,6 +286,23 @@ int main()
     int nScore = 0;
 
     bool bPlaying = true;
+
+    fstream score_file;
+    score_file.open("cTetScore.txt", ios::in);
+
+    int nStoredScore = 0;
+    int nHighScore = 0;
+    if (score_file)
+    {
+        string scoreStr;
+        getline(score_file, scoreStr);
+        score_file.close();
+
+        if (scoreStr != "\0")
+            nStoredScore = std::stoi(scoreStr);
+
+        nHighScore = nStoredScore;
+    }
     
     enum GameState
     {
@@ -475,9 +498,49 @@ int main()
                 bForceDown = (nSpeedCounter >= (nSpeed - nDiffuculty));
 
                 // GAME LOGIC ======================================================
-                nCurrentX -= (bKey[1] && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
-                nCurrentX += (bKey[0] && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) ? 1 : 0;
-                nCurrentY += (bKey[2] && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1)) ? 1 : 0;
+                if (!bKey[KEY_L_ARROW] && !bKey[KEY_R_ARROW] && !bKey[KEY_U_ARROW] && !bKey[KEY_D_ARROW])
+                {
+                    bDirectionHeld = false;
+                    nDASCounter = nDASCounter >= 0 ? (nDASCounter - 1) : 0;
+                }
+
+                if (bKey[KEY_L_ARROW])
+                {
+                    if (!bDirectionHeld)
+                    {
+                        nCurrentX -= (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
+                        bDirectionHeld = true;
+                    }
+                    else
+                    {
+                        if (nDASCounter < nDAS)
+                            nDASCounter++;
+                        else
+                        {
+                            nCurrentX -= (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
+                        }
+                    }
+                }
+
+                if (bKey[KEY_R_ARROW])
+                {
+                    if (!bDirectionHeld)
+                    {
+                        nCurrentX += (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) ? 1 : 0;
+                        bDirectionHeld = true;
+                    }
+                    else
+                    {
+                        if (nDASCounter < nDAS)
+                            nDASCounter++;
+                        else
+                        {
+                            nCurrentX += (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) ? 1 : 0;
+                        }
+                    }
+                }
+                
+                nCurrentY += (bKey[KEY_D_ARROW] && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1)) ? 1 : 0;
 
                 nCurrentRotation += (bKey[3] && !bRotateHold && DoesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY)) ? 1 : 0;
 
@@ -549,6 +612,8 @@ int main()
                             break;
                         }
 
+                        if (nScore > nHighScore)
+                            nHighScore = nScore;
 
                         // Choose next piece
                         nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
@@ -582,16 +647,18 @@ int main()
                             screen[(nCurrentY + py + STARTING_OFFSET) * nSW + (nCurrentX + px + STARTING_OFFSET)] = L"\u2588\u2588\u2588\u2588\u2588\u2588\u2588"[nCurrentPiece];
 
                 swprintf_s(&screen[2 * nSW + nFieldWidth + 6], 16, L"SCORE: %8d", nScore);
+                swprintf_s(&screen[4 * nSW + nFieldWidth + 6], 5, L"HiGH");
+                swprintf_s(&screen[5 * nSW + nFieldWidth + 6], 16, L"SCORE: %8d", nHighScore);
 
-                swprintf_s(&screen[4 * nSW + nFieldWidth + 6], 12, L"NEXT PIECE:");
+                swprintf_s(&screen[7 * nSW + nFieldWidth + 6], 12, L"NEXT PIECE:");
 
                 // Draw Current Piece
                 for (int px = 0; px < NUM_TETROMINO_COLS; px++)
                     for (int py = 0; py < NUM_TETROMINO_LINES; py++)
                         if (tetromino[nNextPiece][Rotate(px, py, 0)] == L'X')
-                            screen[(6 + py + STARTING_OFFSET) * nSW + (nFieldWidth + 6 + px + STARTING_OFFSET)] = L"\u2588\u2588\u2588\u2588\u2588\u2588\u2588"[nNextPiece];
+                            screen[(9 + py + STARTING_OFFSET) * nSW + (nFieldWidth + 6 + px + STARTING_OFFSET)] = L"\u2588\u2588\u2588\u2588\u2588\u2588\u2588"[nNextPiece];
                         else
-                            screen[(6 + py + STARTING_OFFSET) * nSW + (nFieldWidth + 6 + px + STARTING_OFFSET)] = L' ';
+                            screen[(9 + py + STARTING_OFFSET) * nSW + (nFieldWidth + 6 + px + STARTING_OFFSET)] = L' ';
 
                 if (!vLines.empty())
                 {
@@ -631,6 +698,21 @@ int main()
 
         if (gState == GS_GAME_OVER)
         {
+            if (nHighScore > nStoredScore)
+            {
+                nHighScore = nScore;
+                score_file.open("cTetScore.txt", ios::out);
+
+                if (score_file)
+                {
+                    score_file << nHighScore << '\n';
+
+                    score_file.close();
+
+                    nStoredScore = nHighScore;
+                }
+            }
+
             for (int x = 0; x < nSW; x++)
                 for (int y = 0; y < nSH; y++)
                     screen[y * nSW + x] = gameOverSreen[y * nSW + x];
