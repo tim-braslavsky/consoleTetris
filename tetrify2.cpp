@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "math.h"
 #pragma comment(lib,"Winmm.lib")
 
 using namespace std;
@@ -251,6 +252,7 @@ int main()
 
     wchar_t* screen = new wchar_t[nSW * nSH];
     Console::SetWindowSize(nSW, nSH);
+    SetConsoleTitle(L"Console TETRIS");
     for (int i = 0; i < nSW * nSH; i++) screen[i] = L' ';
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
@@ -283,7 +285,11 @@ int main()
     int nSpeedCounter = 0;
     bool bForceDown = false;
     int nLineCount = 0;
+    int nLineCountLast = 0;
+    int nDistPushed;
+
     int nScore = 0;
+    int nInitialLevelTransition;
 
     bool bPlaying = true;
 
@@ -343,6 +349,40 @@ int main()
         KEY_SHIFT
     };
 
+    auto FindSpeed = [](int nLevel) {
+        int retVal = 48;
+        if (nLevel >= 29)
+            retVal = 1;
+        else if (nLevel >= 19)
+            retVal = 2;
+        else if (nLevel >= 16)
+            retVal = 3;
+        else if (nLevel >= 13)
+            retVal = 4;
+        else if (nLevel >= 10)
+            retVal = 5;
+        else
+        {
+            switch (nLevel)
+            {
+                case 9:
+                    retVal = 6;
+                    break;
+                case 8:
+                    retVal = 8;
+                    break;
+                case 7:
+                    retVal = 13;
+                    break;
+                default:
+                    retVal = 48 - 5 * nLevel;
+                    break;
+            }
+        }
+
+        return retVal;
+    };
+
     while (bPlaying)
     {
         // GAME TIMING =====================================================
@@ -382,20 +422,6 @@ int main()
 
             swprintf_s(&screen[16 * nSW + 19], 3, L"%02d", nDiffuculty);
 
-            if (bKey[KEY_SPACE] && !bStartHold)
-            {
-                clearScreen(screen);
-
-                setupField();
-
-                gState = GS_PLAYING;
-
-                bStartHold = true;
-
-                nScore = 0;
-            }
-            else if(!bKey[KEY_SPACE])
-                bStartHold = false;
 
             if (bKey[KEY_0])
                 nDiffuculty = 0 + (bKey[KEY_SHIFT] ? 10 : 0);
@@ -418,6 +444,33 @@ int main()
             else if (bKey[KEY_9])
                 nDiffuculty = 9 + (bKey[KEY_SHIFT] ? 10 : 0);
 
+            if (bKey[KEY_SPACE] && !bStartHold)
+            {
+                clearScreen(screen);
+
+                setupField();
+
+                gState = GS_PLAYING;
+
+                bStartHold = true;
+
+                nScore = 0;
+                nLineCount = 0;
+                nLineCountLast = 0;
+
+                // Choose next piece
+                nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
+                nCurrentY = 0;
+                nCurrentRotation = 0;
+                nCurrentPiece = rand() % NUM_TETROMINOES;
+                nNextPiece = rand() % NUM_TETROMINOES;
+                nDistPushed = 0;
+                nSpeed = FindSpeed(nDiffuculty);
+
+                nInitialLevelTransition = max(100, nDiffuculty * 10 - 50);
+            }
+            else if(!bKey[KEY_SPACE])
+                bStartHold = false;
 
             bGameOver = bKey[KEY_Q];
             bPlaying = !bGameOver;
@@ -470,6 +523,7 @@ int main()
                     nCurrentRotation = 0;
                     nCurrentPiece = rand() % NUM_TETROMINOES;
                     nNextPiece = rand() % NUM_TETROMINOES;
+                    nDistPushed = 0;
                 }
 
                 if (bKey[KEY_Q])
@@ -489,13 +543,17 @@ int main()
             }
             else 
             {
-                if (nLineCount >= 10)
+                if (nLineCount >= nInitialLevelTransition && nLineCount != nLineCountLast && nLineCount % 10)
                 {
-                    if (nSpeed >= 1) nDiffuculty++;
-                    nLineCount = nLineCount % 10;
+                    nDiffuculty++;
+                    nSpeed = FindSpeed(nDiffuculty);
                 }
+
+                nLineCountLast = nLineCount;
+
                 nSpeedCounter++;
-                bForceDown = (nSpeedCounter >= (nSpeed - nDiffuculty));
+
+                bForceDown = (nSpeedCounter >= nSpeed);
 
                 // GAME LOGIC ======================================================
                 if (!bKey[KEY_L_ARROW] && !bKey[KEY_R_ARROW] && !bKey[KEY_U_ARROW] && !bKey[KEY_D_ARROW])
@@ -540,8 +598,11 @@ int main()
                     }
                 }
                 
-                nCurrentY += (bKey[KEY_D_ARROW] && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1)) ? 1 : 0;
-
+                if (bKey[KEY_D_ARROW])
+                {
+                    nCurrentY += (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY + 1)) ? 1 : 0;
+                    nDistPushed++;
+                }
                 nCurrentRotation += (bKey[3] && !bRotateHold && DoesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY)) ? 1 : 0;
 
                 bRotateHold = bKey[3];
@@ -592,25 +653,27 @@ int main()
                                     nLineCount++;
                                 }
                             }
-                        int nMultiplier = (nDiffuculty / 2) > 0 ? (nDiffuculty / 2) : 1;
+                        int nMultiplier = nDiffuculty + 1;
                         switch (vLines.size())
                         {
                             
                         case 4:
-                            nScore += 1000 * nMultiplier;
+                            nScore += 1200 * nMultiplier;
                             break;
                         case 3:
-                            nScore += 500 * nMultiplier;
+                            nScore += 300 * nMultiplier;
                             break;
                         case 2:
-                            nScore += 250 * nMultiplier;
+                            nScore += 100 * nMultiplier;
                             break;
                         case 1:
-                            nScore += 100 * nMultiplier;
+                            nScore += 40 * nMultiplier;
                             break;
                         default:
                             break;
                         }
+
+                        nScore += nDistPushed;
 
                         if (nScore > nHighScore)
                             nHighScore = nScore;
@@ -621,6 +684,7 @@ int main()
                         nCurrentRotation = 0;
                         nCurrentPiece = nNextPiece;
                         nNextPiece = rand() % NUM_TETROMINOES;
+                        nDistPushed = 0;
 
                         if (!DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY))
                         {
@@ -639,7 +703,7 @@ int main()
                 for (int x = 0; x < nFieldWidth; x++)
                     for (int y = 0; y < nFieldHeight; y++)
                         screen[(y + STARTING_OFFSET) * nSW + (x + STARTING_OFFSET)] = L" \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2593"[pField[y * nFieldWidth + x]];
-
+                
                 // Draw Current Piece
                 for (int px = 0; px < NUM_TETROMINO_COLS; px++)
                     for (int py = 0; py < NUM_TETROMINO_LINES; py++)
@@ -651,6 +715,7 @@ int main()
                 swprintf_s(&screen[5 * nSW + nFieldWidth + 6], 16, L"SCORE: %8d", nHighScore);
 
                 swprintf_s(&screen[7 * nSW + nFieldWidth + 6], 12, L"NEXT PIECE:");
+                swprintf_s(&screen[17 * nSW + nFieldWidth + 6], 10, L"LEVEL: %02d", nDiffuculty);
 
                 // Draw Current Piece
                 for (int px = 0; px < NUM_TETROMINO_COLS; px++)
@@ -729,12 +794,16 @@ int main()
 
                 nScore = 0;
 
+                nLineCount = 0;
+                nLineCountLast = 0;
+
                 // Choose next piece
                 nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
                 nCurrentY = 0;
                 nCurrentRotation = 0;
                 nCurrentPiece = rand() % NUM_TETROMINOES;
                 nNextPiece = rand() % NUM_TETROMINOES;
+                nDistPushed = 0;
             }
 
             if (bKey[KEY_Q])
