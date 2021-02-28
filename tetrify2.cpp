@@ -217,9 +217,9 @@ int main()
     gameOverSreen.append(L"#       PRESS Q TO QUIT          #");
     gameOverSreen.append(L"#    *                       *   #");
     gameOverSreen.append(L"# ****************************** #");
-    gameOverSreen.append(L"# *    *    *    *    *   *   *  #");
-    gameOverSreen.append(L"#  *  *  *  *  *  *  *  *  *  *  #");
-    gameOverSreen.append(L"# * * * * * * * * * * * * * * *  #");
+    gameOverSreen.append(L"#  *   *    *    *    *   *  *   #");
+    gameOverSreen.append(L"#    * * *     * * *    * * *    #");
+    gameOverSreen.append(L"#  * * * * * * * * * * * * * *   #");
     gameOverSreen.append(L"# ****************************** #");
     gameOverSreen.append(L"==================================");
 
@@ -308,6 +308,7 @@ int main()
     int  nCurrentRotation = 0;
     int  nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
     int  nCurrentY = 0;
+    int  nProjectedY = 0;
     bool bKey[NUM_CONTROL_KEYS];
     bool bRotateHold = false;
     bool bPauseHold = false;
@@ -317,7 +318,8 @@ int main()
     bool bDirectionHeld = false;
 
     int nSpeed = 20;
-    int nDiffuculty = 0;
+    int nDifficulty = 0;
+    int nSelectedDifficulty = 0;
     int nSpeedCounter = 0;
     bool bForceDown = false;
     int nLineCount = 0;
@@ -428,15 +430,22 @@ int main()
     auto ResetCurrentPiece = [](int& nCurrentX,
                                 int& nCurrentY, 
                                 int& nCurrentRotation, 
-                                int& nDistPushed)
+                                int& nDistPushed,
+                                int& nProjectedY,
+                                int& nCurrentPiece)
     {
         // Choose next piece
         nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
         nCurrentY = 0;
         nCurrentRotation = 0;
         nDistPushed = 0;
-    };
 
+        nProjectedY = nCurrentY;
+        while (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nProjectedY))
+            nProjectedY++;
+        nProjectedY--;
+    };
+    
     auto NextPieceToCurrent = [](int& nNextPiece, int& nCurrentPiece) 
     {
         nCurrentPiece = nNextPiece;
@@ -456,8 +465,27 @@ int main()
             bKeys[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28\x26\x1b\x20\x51\x52\x4d\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x10"[k]))) != 0;
     };
 
-    auto FillScreen = []() {};
-    auto DrawShape = []() {};
+    auto FillScreen = [](wchar_t* screen,const wstring& screenToDraw) {
+    
+        for (int x = 0; x < nSW; x++)
+            for (int y = 0; y < nSH; y++)
+                screen[y * nSW + x] = screenToDraw[y * nSW + x];
+    };
+
+    auto DrawPiece = [](const int &nCurrentPiece,
+                        const int &nCurrentRotation,
+                        const int &nCurrentX,
+                        const int &nCurrentY,
+                        wchar_t* screen,
+                        const wchar_t &displayChar,
+                        const wchar_t &altDisplayChar = L'\0') {
+        for (int px = 0; px < NUM_TETROMINO_COLS; px++)
+            for (int py = 0; py < NUM_TETROMINO_LINES; py++)
+                if (tetromino[nCurrentPiece][Rotate(px, py, nCurrentRotation)] == L'X')
+                    screen[(nCurrentY + py + STARTING_OFFSET) * nSW + (nCurrentX + px + STARTING_OFFSET)] = displayChar;
+                else if(altDisplayChar != L'\0')
+                    screen[(nCurrentY + py + STARTING_OFFSET) * nSW + (nCurrentX + px + STARTING_OFFSET)] = altDisplayChar;
+    };
 
     auto ResetTimers = [](high_resolution_clock::time_point& timer,
                           high_resolution_clock::time_point& timer_last,
@@ -498,9 +526,7 @@ int main()
 
         if (gState == GS_MAIN_MENU)
         {
-            for (int x = 0; x < nSW; x++)
-                for (int y = 0; y < nSH; y++)
-                    screen[y * nSW + x] = titleSreen[y * nSW + x];
+            FillScreen(screen, titleSreen);
 
             if (bKey[KEY_SPACE] && !bStartHold)
             {
@@ -521,34 +547,31 @@ int main()
         {
             AnimateStar(difficultySreen);
 
-            for (int x = 0; x < nSW; x++)
-                for (int y = 0; y < nSH; y++)
-                    screen[y * nSW + x] = difficultySreen[y * nSW + x];
+            FillScreen(screen, difficultySreen);
 
-            swprintf_s(&screen[16 * nSW + 19], 3, L"%02d", nDiffuculty);
-
+            swprintf_s(&screen[16 * nSW + 19], 3, L"%02d", nSelectedDifficulty);
 
             // Note can be switch
             if (bKey[KEY_0])
-                nDiffuculty = 0 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 0 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_1])
-                nDiffuculty = 1 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 1 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_2])
-                nDiffuculty = 2 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 2 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_3])
-                nDiffuculty = 3 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 3 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_4])
-                nDiffuculty = 4 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 4 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_5])
-                nDiffuculty = 5 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 5 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_6])
-                nDiffuculty = 6 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 6 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_7])
-                nDiffuculty = 7 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 7 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_8])
-                nDiffuculty = 8 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 8 + (bKey[KEY_SHIFT] ? 10 : 0);
             else if (bKey[KEY_9])
-                nDiffuculty = 9 + (bKey[KEY_SHIFT] ? 10 : 0);
+                nSelectedDifficulty = 9 + (bKey[KEY_SHIFT] ? 10 : 0);
 
             if (bKey[KEY_SPACE] && !bStartHold)
             {
@@ -564,16 +587,14 @@ int main()
                 nLineCount = 0;
                 nLineCountLast = 0;
 
-                // Choose next piece
-                nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
-                nCurrentY = 0;
-                nCurrentRotation = 0;
-                nCurrentPiece = rand() % NUM_TETROMINOES;
-                nNextPiece = rand() % NUM_TETROMINOES;
-                nDistPushed = 0;
-                nSpeed = FindSpeed(nDiffuculty);
+                RandomizePieces(nNextPiece, nCurrentPiece);
+                ResetCurrentPiece(nCurrentX, nCurrentY, nCurrentRotation, nDistPushed, nProjectedY, nCurrentPiece);
 
-                nInitialLevelTransition = max(100, nDiffuculty * 10 - 50);
+                nDifficulty = nSelectedDifficulty;
+
+                nInitialLevelTransition = max(100, nDifficulty * 10 - 50);
+
+                nSpeed = FindSpeed(nDifficulty);
 
                 ResetTimers(timer, timer_last, fps_timer_last);
             }
@@ -586,12 +607,10 @@ int main()
         
         while (!bGameOver && (gState == GS_PLAYING || gState == GS_PAUSE))
         {
-            
             // GAME TIMING =====================================================
+            timer = high_resolution_clock::now();
             duration<double, std::milli> time_span = timer - timer_last;
-            this_thread::sleep_for(14.1ms - (time_span));
             timer_last = high_resolution_clock::now();
-
             fps_counter++;
             duration<double, std::milli> time_span_fps = timer - fps_timer_last;
             if (time_span_fps >= 1000ms)
@@ -601,14 +620,15 @@ int main()
                 fps_timer_last = high_resolution_clock::now();
             }
 
+            this_thread::sleep_for(16.67ms - (time_span));
+
+
             // INPUT ===========================================================
             GetInputs(bKey);
 
             if (gState == GS_PAUSE)
             {
-                for (int x = 0; x < nSW; x++)
-                    for (int y = 0; y < nSH; y++)
-                        screen[y * nSW + x] = pausedSreen[y * nSW + x];
+                FillScreen(screen, pausedSreen);
 
                 if (bKey[KEY_ESC] && !bPauseHold)
                 {
@@ -635,13 +655,10 @@ int main()
 
                     nScore = 0;
 
-                    // Choose next piece
-                    nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
-                    nCurrentY = 0;
-                    nCurrentRotation = 0;
-                    nCurrentPiece = rand() % NUM_TETROMINOES;
-                    nNextPiece = rand() % NUM_TETROMINOES;
-                    nDistPushed = 0;
+                    nDifficulty = nSelectedDifficulty;
+
+                    RandomizePieces(nNextPiece, nCurrentPiece);
+                    ResetCurrentPiece(nCurrentX, nCurrentY, nCurrentRotation, nDistPushed, nProjectedY, nCurrentPiece);
 
                     ResetTimers(timer, timer_last, fps_timer_last);
                 }
@@ -665,8 +682,8 @@ int main()
             {
                 if (nLineCount >= nInitialLevelTransition && nLineCount != nLineCountLast && nLineCount % 10)
                 {
-                    nDiffuculty++;
-                    nSpeed = FindSpeed(nDiffuculty);
+                    nDifficulty++;
+                    nSpeed = FindSpeed(nDifficulty);
                 }
 
                 nLineCountLast = nLineCount;
@@ -698,6 +715,11 @@ int main()
                             nCurrentX -= (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX - 1, nCurrentY)) ? 1 : 0;
                         }
                     }
+
+                    nProjectedY = nCurrentY;
+                    while (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nProjectedY))
+                        nProjectedY++;
+                    nProjectedY--;
                 }
 
                 if (bKey[KEY_R_ARROW])
@@ -716,6 +738,11 @@ int main()
                             nCurrentX += (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) ? 1 : 0;
                         }
                     }
+
+                    nProjectedY = nCurrentY;
+                    while (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nProjectedY))
+                        nProjectedY++;
+                    nProjectedY--;
                 }
                 
                 if (bKey[KEY_D_ARROW])
@@ -728,9 +755,24 @@ int main()
                     else
                         bForceDown = true;
                 }
-                nCurrentRotation += (bKey[3] && !bRotateHold && DoesPieceFit(nCurrentPiece, nCurrentRotation + 1, nCurrentX, nCurrentY)) ? 1 : 0;
 
-                bRotateHold = bKey[3];
+                if (bKey[KEY_U_ARROW] && ! bRotateHold)
+                {
+                    nCurrentRotation++;
+                    while (!DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY))
+                    {
+                        if (nCurrentX < nFieldWidth / 2)
+                            nCurrentX++;
+                        else
+                            nCurrentX--;
+                    }
+                    nProjectedY = nCurrentY;
+                    while (DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nProjectedY))
+                        nProjectedY++;
+                    nProjectedY--;
+                }
+
+                bRotateHold = bKey[KEY_U_ARROW];
 
                 if (bKey[KEY_ESC] && !bPauseHold)
                 {
@@ -778,7 +820,7 @@ int main()
                                     nLineCount++;
                                 }
                             }
-                        int nMultiplier = nDiffuculty + 1;
+                        int nMultiplier = nDifficulty + 1;
                         switch (vLines.size())
                         {
                             
@@ -803,13 +845,8 @@ int main()
                         if (nScore > nHighScore)
                             nHighScore = nScore;
 
-                        // Choose next piece
-                        nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
-                        nCurrentY = 0;
-                        nCurrentRotation = 0;
-                        nCurrentPiece = nNextPiece;
-                        nNextPiece = rand() % NUM_TETROMINOES;
-                        nDistPushed = 0;
+                        NextPieceToCurrent(nNextPiece, nCurrentPiece);
+                        ResetCurrentPiece(nCurrentX, nCurrentY, nCurrentRotation, nDistPushed, nProjectedY, nCurrentPiece);
 
                         if (!DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY))
                         {
@@ -830,28 +867,21 @@ int main()
                         screen[(y + STARTING_OFFSET) * nSW + (x + STARTING_OFFSET)] = L" \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2593"[pField[y * nFieldWidth + x]];
                 
                 // Draw Current Piece
-                for (int px = 0; px < NUM_TETROMINO_COLS; px++)
-                    for (int py = 0; py < NUM_TETROMINO_LINES; py++)
-                        if (tetromino[nCurrentPiece][Rotate(px, py, nCurrentRotation)] == L'X')
-                            screen[(nCurrentY + py + STARTING_OFFSET) * nSW + (nCurrentX + px + STARTING_OFFSET)] = L"\u2588\u2588\u2588\u2588\u2588\u2588\u2588"[nCurrentPiece];
+                DrawPiece(nCurrentPiece, nCurrentRotation, nCurrentX, nProjectedY, screen, L'\u25a1');
+                DrawPiece(nCurrentPiece, nCurrentRotation, nCurrentX, nCurrentY, screen, L'\u2588');
 
                 swprintf_s(&screen[2 * nSW + nFieldWidth + 6], 16, L"SCORE: %8d", nScore);
                 swprintf_s(&screen[4 * nSW + nFieldWidth + 6], 5, L"HiGH");
                 swprintf_s(&screen[5 * nSW + nFieldWidth + 6], 16, L"SCORE: %8d", nHighScore);
 
                 swprintf_s(&screen[7 * nSW + nFieldWidth + 6], 12, L"NEXT PIECE:");
-                swprintf_s(&screen[17 * nSW + nFieldWidth + 6], 10, L"LEVEL: %02d", nDiffuculty);
+                swprintf_s(&screen[17 * nSW + nFieldWidth + 6], 10, L"LEVEL: %02d", nDifficulty);
                 
                 if(DEBUG)
                     swprintf_s(&screen[19 * nSW + nFieldWidth + 6], 11, L"FPS: %02.02f", fps);
 
-                // Draw Current Piece
-                for (int px = 0; px < NUM_TETROMINO_COLS; px++)
-                    for (int py = 0; py < NUM_TETROMINO_LINES; py++)
-                        if (tetromino[nNextPiece][Rotate(px, py, 0)] == L'X')
-                            screen[(9 + py + STARTING_OFFSET) * nSW + (nFieldWidth + 6 + px + STARTING_OFFSET)] = L"\u2588\u2588\u2588\u2588\u2588\u2588\u2588"[nNextPiece];
-                        else
-                            screen[(9 + py + STARTING_OFFSET) * nSW + (nFieldWidth + 6 + px + STARTING_OFFSET)] = L' ';
+                // Draw Next Piece
+                DrawPiece(nNextPiece, 0, nFieldWidth + 6, 9, screen, L'\u2588', L' ');
 
                 if (!vLines.empty())
                 {
@@ -887,9 +917,6 @@ int main()
             }
 
             WriteConsoleOutputCharacter(hConsole, screen, nSW * nSH, { 0,0 }, &dwBytesWritten);
-
-            timer = high_resolution_clock::now();
-
         }
 
         if (gState == GS_GAME_OVER)
@@ -913,15 +940,11 @@ int main()
             {
                 AnimateStar(gameOverSreen);
 
-                for (int x = 0; x < nSW; x++)
-                    for (int y = 0; y < nSH; y++)
-                        screen[y * nSW + x] = gameOverSreen[y * nSW + x];
+                FillScreen(screen, gameOverSreen);
             }
             else
             {
-                for (int x = 0; x < nSW; x++)
-                    for (int y = 0; y < nSH; y++)
-                        screen[y * nSW + x] = maxOutScreen[y * nSW + x];
+                FillScreen(screen, maxOutScreen);
             }
 
             if (bKey[KEY_R])
@@ -939,13 +962,10 @@ int main()
                 nLineCount = 0;
                 nLineCountLast = 0;
 
-                // Choose next piece
-                nCurrentX = (nFieldWidth / 2) - STARTING_OFFSET;
-                nCurrentY = 0;
-                nCurrentRotation = 0;
-                nCurrentPiece = rand() % NUM_TETROMINOES;
-                nNextPiece = rand() % NUM_TETROMINOES;
-                nDistPushed = 0;
+                nDifficulty = nSelectedDifficulty;
+
+                RandomizePieces(nNextPiece, nCurrentPiece);
+                ResetCurrentPiece(nCurrentX, nCurrentY, nCurrentRotation, nDistPushed, nProjectedY, nCurrentPiece);
 
                 ResetTimers(timer, timer_last, fps_timer_last);
             }
