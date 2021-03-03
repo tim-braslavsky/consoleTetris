@@ -1,2 +1,2 @@
 # Console Tetris
-![Alt Text](CTETRIS.gif)
+![Alt Text](https://i.imgur.com/obJ3i4A.gif)
