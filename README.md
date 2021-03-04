@@ -13,4 +13,4 @@ This is a fully functional game of tetris entirely in the console, using nothing
 ============================================================
 
 ##EXE DOWNLOAD##
-If you are looking for just the exe you can download it [here](CTETRIS.exe)
+If you are looking for just the exe you can download it [here](https://github.com/tim-braslavsky/consoleTetris/raw/main/CTETRIS.exe)
