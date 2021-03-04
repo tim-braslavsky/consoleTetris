@@ -2,7 +2,7 @@
 ![Alt Text](https://i.imgur.com/obJ3i4A.gif)
 
 This is a project based off One Lone Coder's [tutorial](https://www.youtube.com/watch?v=8OK8_tHeCIA).
-This is a fully functional game of tetris entirely in the console, using nothing but asccii characters.
+This is a fully functional game of tetris entirely in the console, using nothing but ascii characters.
 
 -The difficulty and scoring is baseed off the NES version of tetris.
 
